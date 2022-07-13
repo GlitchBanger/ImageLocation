@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <div>
+        <label for="image">Image: </label>
+        <input type="file" name="image" id="image" accept="image/jpeg, image/tiff, image/png">
+    </div>
+    <div>
+        <label for="lat">Latitude: </label>
+        <textarea name="lat" id="lat" cols="30" rows="1" readonly></textarea>
+    </div>
+    <div>
+        <label for="lon">Longitude: </label>
+        <textarea name="lon" id="lon" cols="30" rows="1" readonly></textarea>
+    </div>
+    <button type="submit" id="upload">Capture Image</button>
+    <!-- classic UMD script -->
+    <script src="https://cdn.jsdelivr.net/npm/exifr/dist/full.umd.js"></script>
+    <script>
+        document.getElementById("upload").onclick = async () => {
+            let file = document.getElementById("image").files[0];
+            let metadata = await exifr.parse(file);
+            console.log(metadata);
+            let longitude = metadata.longitude + metadata.GPSLongitudeRef;
+            let latitude = metadata.latitude + metadata.GPSLatitudeRef;
+            document.getElementById("lat").value = latitude;
+            document.getElementById("lon").value = longitude;
+            let formdata = new FormData();
+            formdata.append('file', file);
+
+            await fetch('/upload.php', {
+                method: "POST",
+                body: formdata
+            });
+            alert("file uploaded");
+        };
+    </script>
+</body>
+</html>
